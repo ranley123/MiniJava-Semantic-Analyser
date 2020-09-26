@@ -1,4 +1,4 @@
-// Generated from MiniJavaGrammar.g by ANTLR 4.7.2
+// Generated from MiniJavaGrammar.g4 by ANTLR 4.7.2
 package utils;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

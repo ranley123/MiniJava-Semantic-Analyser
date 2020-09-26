@@ -1,7 +1,7 @@
-package utils;
-
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import utils.MiniJavaGrammarBaseListener;
+import utils.MiniJavaGrammarParser;
 
 import java.util.Vector;
 
@@ -25,6 +25,8 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     public void enterProgram(MiniJavaGrammarParser.ProgramContext ctx) {
         // create a scope for the program
         System.out.println("Entered program");
+
+
     }
 
 
@@ -48,7 +50,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterClassdecl(MiniJavaGrammarParser.ClassdeclContext ctx) {
-//
+
 //
     }
 
@@ -61,13 +63,15 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-
+//        System.out.println(ctx.toInfoString(this.parser));
+        System.out.println("enter var");
 
     }
 
     //
     @Override
     public void exitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
+        System.out.println("exit var");
 
     }
 
@@ -92,7 +96,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void exitFormallist(MiniJavaGrammarParser.FormallistContext ctx) {
-        System.out.println("exitFormalList");
+
     }
 
     //
@@ -105,7 +109,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void exitFormalrest(MiniJavaGrammarParser.FormalrestContext ctx) {
-        System.out.println("exitFormalrest");
+
     }
 
     //

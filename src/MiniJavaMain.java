@@ -1,9 +1,10 @@
-package utils;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
+import utils.MiniJavaGrammarLexer;
+import utils.MiniJavaGrammarParser;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.Vector;
 
 public class MiniJavaMain {
 
@@ -30,9 +31,17 @@ public class MiniJavaMain {
 
         ParseTreeWalker walker = new ParseTreeWalker();
 
+        MiniJavaVisitor visitor = new MiniJavaVisitor();
+
         MiniJavaListener typecheck = new MiniJavaListener(parser);
 
-        walker.walk(typecheck, tree);
+//        walker.walk(typecheck, tree);
+        tree.accept(visitor);
+//        tree.getChild().accept(visitor);
+
+    }
+
+    public static void fillSymbable(){
 
     }
 

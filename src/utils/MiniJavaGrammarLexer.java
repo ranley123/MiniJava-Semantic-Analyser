@@ -1,4 +1,4 @@
-// Generated from MiniJavaGrammar.g by ANTLR 4.7.2
+// Generated from MiniJavaGrammar.g4 by ANTLR 4.7.2
 package utils;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -104,7 +104,7 @@ public class MiniJavaGrammarLexer extends Lexer {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "MiniJavaGrammar.g"; }
+	public String getGrammarFileName() { return "MiniJavaGrammar.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

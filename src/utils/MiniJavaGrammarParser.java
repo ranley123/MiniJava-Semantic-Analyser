@@ -1,4 +1,4 @@
-// Generated from MiniJavaGrammar.g by ANTLR 4.7.2
+// Generated from MiniJavaGrammar.g4 by ANTLR 4.7.2
 package utils;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -90,7 +90,7 @@ public class MiniJavaGrammarParser extends Parser {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "MiniJavaGrammar.g"; }
+	public String getGrammarFileName() { return "MiniJavaGrammar.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

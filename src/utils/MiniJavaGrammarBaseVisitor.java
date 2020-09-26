@@ -1,4 +1,4 @@
-package utils;// Generated from MiniJavaGrammar.g by ANTLR 4.7.2
+package utils;// Generated from MiniJavaGrammar.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
