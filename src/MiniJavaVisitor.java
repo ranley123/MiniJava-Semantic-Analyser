@@ -1,11 +1,10 @@
 import models.ClassDeclaration;
 import models.MethodDeclaration;
 import models.SymbolTable;
-import org.antlr.v4.runtime.tree.TerminalNode;
+import models.VariableDeclaration;
 import utils.MiniJavaGrammarBaseVisitor;
 import utils.MiniJavaGrammarParser;
 
-import java.lang.reflect.Method;
 
 public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
     SymbolTable symbolTable = null;
@@ -55,6 +54,34 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
     @Override
     public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
         System.out.println("visit var");
+        String varName = ctx.ID().getText();
+        String type = ctx.type().getText();
+        String prevname = "";
+
+        // try to get prev env name
+        try{
+            MiniJavaGrammarParser.ClassdeclContext parent = (MiniJavaGrammarParser.ClassdeclContext)ctx.getParent();
+            prevname = parent.ID(0).getText();
+            VariableDeclaration variableDeclaration = new VariableDeclaration(varName, type, prevname);
+            symbolTable.classData.get(prevname).insertVar(varName, variableDeclaration);
+        }
+        catch (Exception e){
+            try{
+                MiniJavaGrammarParser.MethoddeclContext parent = (MiniJavaGrammarParser.MethoddeclContext)ctx.getParent();
+                prevname = parent.ID().getText();
+
+                VariableDeclaration variableDeclaration = new VariableDeclaration(varName, type, prevname);
+                MiniJavaGrammarParser.ClassdeclContext ancestorClass = (MiniJavaGrammarParser.ClassdeclContext)parent.getParent();
+                String className = ancestorClass.ID(0).getText();
+
+                symbolTable.classData.get(className).methodData.get(prevname).insertVar(varName, variableDeclaration);
+            }
+            catch (Exception e2){
+                e2.printStackTrace();
+            }
+        }
+
+        symbolTable.listClassesDetailed();
 
         return super.visitVardecl(ctx);
     }
@@ -74,7 +101,7 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         // add to parent class
         ClassDeclaration parentClass = symbolTable.classData.get(className);
         parentClass.insertMethod(methodName, newMethod);
-        parentClass.listMethods();
+//        parentClass.listMethods();
 
         return super.visitMethoddecl(ctx);
     }
@@ -105,7 +132,6 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
     @Override
     public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
         System.out.println("visit statement");
-        System.out.println(ctx.getChild(0));
 
 
         return super.visitStatement(ctx);

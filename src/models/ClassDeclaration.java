@@ -29,12 +29,12 @@ public class ClassDeclaration {
         methodData.put(methodName, methodDeclaration);
     }
 
-    public void insertVar(String varName, String type){
+    public void insertVar(String varName, VariableDeclaration variableDeclaration){
         if(varData.containsKey(varName)){
             System.out.println("Multiple declarations of variable " + varName);
             System.exit(0);
         }
-        varData.put(varName, new VariableDeclaration(varName, type));
+        varData.put(varName, variableDeclaration);
     }
 
     public void listVars(){

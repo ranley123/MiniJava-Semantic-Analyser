@@ -28,15 +28,15 @@ public class MethodDeclaration {
             System.out.println("Multiple declarations of parameter " + paramName + " in method " + methodName);
             System.exit(0);
         }
-        paramData.put(paramName, new VariableDeclaration(paramName, type));
+        paramData.put(paramName, new VariableDeclaration(paramName, type, this.methodName));
     }
 
-    public void insertVar(String varName, String type){
+    public void insertVar(String varName, VariableDeclaration variableDeclaration){
         if(varData.containsKey(varName)){
             System.out.println("Multiple declarations of variable " + varName + " in method " + methodName);
             System.exit(0);
         }
-        varData.put(varName, new VariableDeclaration(varName, type));
+        varData.put(varName,variableDeclaration);
     }
 
     public void listVars(){
