@@ -1,3 +1,4 @@
+import models.SymbolTable;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import utils.MiniJavaGrammarLexer;
@@ -31,13 +32,15 @@ public class MiniJavaMain {
 
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        MiniJavaVisitor visitor = new MiniJavaVisitor();
+        STVisitor visitor = new STVisitor();
+        tree.accept(visitor);
+
+        TypeChecker checker = new TypeChecker(visitor.symbolTable);
 
         MiniJavaListener typecheck = new MiniJavaListener(parser);
 
-//        walker.walk(typecheck, tree);
-        tree.accept(visitor);
-//        tree.getChild().accept(visitor);
+//        walker.walk(typecheck, tree);tree
+        tree.accept(checker);
 
     }
 

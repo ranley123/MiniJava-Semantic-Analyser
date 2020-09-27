@@ -23,7 +23,7 @@ public class SymbolTable {
         if(superclassName.length() > 0){
             // check superclass exists
             if(!classData.containsKey(superclassName)){
-                System.out.println("Class " + className + " has not been declared");
+                System.out.println("Class " + superclassName + " has not been declared");
                 System.exit(0);
             }
 
@@ -60,5 +60,23 @@ public class SymbolTable {
             entry.getValue().listVars();
             entry.getValue().listMethods();
         }
+    }
+
+    public void printSymbolTable(){
+        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
+
+        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
+            final Object[][] table = new String[4][];
+
+            System.out.println("-----------------------------------");
+            System.out.println("-----------------------------------");
+            System.out.println("Class: " + entry.getKey() + "\n");
+
+            System.out.println("Method");
+            System.out.println("-----------------------------------");
+
+
+        }
+
     }
 }

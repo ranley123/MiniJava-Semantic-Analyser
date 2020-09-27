@@ -50,7 +50,6 @@ public class ClassDeclaration {
         Set<Map.Entry<String, MethodDeclaration>> entrySet = methodData.entrySet();
         for(Map.Entry<String, MethodDeclaration> entry: entrySet){
             System.out.println(entry.getKey() + "()");
-            entry.getValue().listParams();
             entry.getValue().listVars();
             System.out.println("RETURN: " + entry.getValue().type);
         }

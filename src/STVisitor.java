@@ -6,25 +6,16 @@ import utils.MiniJavaGrammarBaseVisitor;
 import utils.MiniJavaGrammarParser;
 
 
-public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
-    SymbolTable symbolTable = null;
+public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
+    SymbolTable symbolTable;
 
-    MiniJavaVisitor() {
+    STVisitor() {
         symbolTable = new SymbolTable();
     }
-
-    @Override
-    public Void visitProgram(MiniJavaGrammarParser.ProgramContext ctx) {
-        System.out.println("visit program");
-        symbolTable = new SymbolTable();
-
-        return super.visitProgram(ctx);
-    }
-
 
     @Override
     public Void visitMainclass(MiniJavaGrammarParser.MainclassContext ctx) {
-        System.out.println("visit mainclass");
+//        System.out.println("visit mainclass");
         String className = ctx.ID(0).getText();
         symbolTable.insertClass(className, new ClassDeclaration(className));
 //        symbolTable.listClasses();
@@ -33,7 +24,7 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitClassdecl(MiniJavaGrammarParser.ClassdeclContext ctx) {
-        System.out.println("visit class");
+//        System.out.println("visit class");
         String className = ctx.ID(0).getText();
         String superclassName = null;
 
@@ -53,7 +44,8 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-        System.out.println("visit var");
+//        System.out.println("visit var");
+//        System.out.println(ctx.getRuleIndex());
         String varName = ctx.ID().getText();
         String type = ctx.type().getText();
         String prevname = "";
@@ -81,14 +73,16 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
             }
         }
 
-        symbolTable.listClassesDetailed();
+//        symbolTable.listClassesDetailed();
 
         return super.visitVardecl(ctx);
     }
 
     @Override
     public Void visitMethoddecl(MiniJavaGrammarParser.MethoddeclContext ctx) {
-        System.out.println("visit method");
+//        System.out.println(ctx.getAltNumber());
+
+//        System.out.println("visit method");
         String methodName = ctx.ID().getText();
         String type = ctx.type().getText();
 //        System.out.println(type);
@@ -106,68 +100,40 @@ public class MiniJavaVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         return super.visitMethoddecl(ctx);
     }
 
+    // for method parameters
     @Override
     public Void visitFormallist(MiniJavaGrammarParser.FormallistContext ctx) {
-        System.out.println("visit formallist");
+//        System.out.println("visit formallist");
+        String type = ctx.type().getText();
+        String varName = ctx.ID().getText();
+        MiniJavaGrammarParser.MethoddeclContext methodCtx = (MiniJavaGrammarParser.MethoddeclContext) ctx.getParent();
+        VariableDeclaration variableDeclaration = new VariableDeclaration(varName, type, methodCtx.ID().getText());
+        String ancestorClass = getAncestorClass(methodCtx);
 
+        // insert parameters
+        symbolTable.classData.get(ancestorClass).methodData.get(methodCtx.ID().getText()).insertVar(varName, variableDeclaration);
 
         return super.visitFormallist(ctx);
     }
 
     @Override
     public Void visitFormalrest(MiniJavaGrammarParser.FormalrestContext ctx) {
-        System.out.println("visit formal rest");
+//        System.out.println("visit formal rest");
+        String type = ctx.type().getText();
+        String varName = ctx.ID().getText();
+        MiniJavaGrammarParser.MethoddeclContext methodCtx = (MiniJavaGrammarParser.MethoddeclContext) ctx.getParent().getParent();
+        VariableDeclaration variableDeclaration = new VariableDeclaration(varName, type, methodCtx.ID().getText());
+        String ancestorClass = getAncestorClass(methodCtx);
 
-
+        // insert parameters
+        symbolTable.classData.get(ancestorClass).methodData.get(methodCtx.ID().getText()).insertVar(varName, variableDeclaration);
+        symbolTable.classData.get(ancestorClass).listMethods();
         return super.visitFormalrest(ctx);
     }
 
-    @Override
-    public Void visitType(MiniJavaGrammarParser.TypeContext ctx) {
-        System.out.println("visit type");
-
-        return super.visitType(ctx);
-    }
-
-    @Override
-    public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
-        System.out.println("visit statement");
-
-
-        return super.visitStatement(ctx);
-    }
-
-    @Override
-    public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
-        System.out.println("visit expression");
-
-
-
-        return super.visitExpr(ctx);
-    }
-
-    @Override
-    public Void visitOp(MiniJavaGrammarParser.OpContext ctx) {
-        System.out.println("visit operator");
-
-
-        return super.visitOp(ctx);
-    }
-
-    @Override
-    public Void visitExprlist(MiniJavaGrammarParser.ExprlistContext ctx) {
-        System.out.println("visit expression list");
-
-
-        return super.visitExprlist(ctx);
-    }
-
-    @Override
-    public Void visitExprrest(MiniJavaGrammarParser.ExprrestContext ctx) {
-        System.out.println("visit expression rest");
-
-
-        return super.visitExprrest(ctx);
+    public String getAncestorClass(MiniJavaGrammarParser.MethoddeclContext ctx){
+        MiniJavaGrammarParser.ClassdeclContext ancestor = (MiniJavaGrammarParser.ClassdeclContext) ctx.getParent();
+        return ancestor.ID(0).getText();
     }
 
 }
