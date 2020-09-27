@@ -127,7 +127,7 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
         // insert parameters
         symbolTable.classData.get(ancestorClass).methodData.get(methodCtx.ID().getText()).insertVar(varName, variableDeclaration);
-        symbolTable.classData.get(ancestorClass).listMethods();
+//        symbolTable.classData.get(ancestorClass).listMethods();
         return super.visitFormalrest(ctx);
     }
 

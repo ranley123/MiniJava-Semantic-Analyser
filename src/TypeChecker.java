@@ -14,14 +14,24 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
+        if(ctx.EQUALS() != null && ctx.getChildCount() == 4){
+            String type1 = getIDType(ctx);
+            String type2 = getExprType(ctx.expr(0));
+            if (type1.compareTo(type2) != 0){
+                System.out.println("Error: Type not matched");
+                System.exit(0);
+            }
+        }
+        else if(ctx.EQUALS() != null && ctx.getChildCount() == 7){
 
+        }
         return super.visitStatement(ctx);
     }
 
     @Override
     public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
         String type = getExprType(ctx);
-        System.out.println(type);
+//        System.out.println(type);
         return super.visitExpr(ctx);
     }
 
@@ -155,9 +165,16 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     }
 
     public String getIDType(ParserRuleContext ctx){
-        String IDName = ((MiniJavaGrammarParser.ExprContext) ctx).ID().getText();
+        String IDName = "";
         String methodName = null;
         String className = null;
+
+        if (ctx instanceof MiniJavaGrammarParser.ExprContext){
+            IDName = ((MiniJavaGrammarParser.ExprContext) ctx).ID().getText();
+        }
+        else if(ctx instanceof MiniJavaGrammarParser.StatementContext){
+            IDName = ((MiniJavaGrammarParser.StatementContext) ctx).ID().getText();
+        }
 
         while(true){
             if(ctx instanceof MiniJavaGrammarParser.MethoddeclContext){
