@@ -1,9 +1,13 @@
 import models.ClassDeclaration;
 import models.MethodDeclaration;
 import models.SymbolTable;
+import models.VariableDeclaration;
 import org.antlr.v4.runtime.ParserRuleContext;
 import utils.MiniJavaGrammarBaseVisitor;
 import utils.MiniJavaGrammarParser;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     SymbolTable symbolTable;
@@ -107,15 +111,13 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 return "int";
             }
 
+            // expr DOT ID LPAREN exprlist? RPAREN
             // for calling method. this.computeFac(2) the type should be computeFac()
             case 3: {
                 String className = getExprType(ctx.expr(0));
-//                String type = getIDType(ctx);
                 String methodName = ctx.ID().getText();
-//                System.out.println("classname " + className);
-//                System.out.println(className);
+                checkParameters(symbolTable.classData.get(className).methodData.get(methodName), ctx);
                 String type = symbolTable.classData.get(className).methodData.get(methodName).type;
-//                System.out.println(type);
                 return type;
 
             }
@@ -266,6 +268,49 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         }
         System.out.println("not declared: " + IDName);
         return "string";
+    }
+
+    public void checkParameters(MethodDeclaration method, MiniJavaGrammarParser.ExprContext ctx){
+        ArrayList<String> types = new ArrayList<>();
+        int size = 0;
+
+        if(ctx.exprlist() == null){
+            size = 0;
+        }
+        else{
+            MiniJavaGrammarParser.ExprlistContext list = ctx.exprlist();
+            types.add(getExprType(list.expr()));
+
+            if(list.exprrest() != null){
+                for(int i = 0; i < list.exprrest().size(); i++){
+                    types.add(getExprType(list.exprrest(i).expr()));
+                }
+//                System.out.println("h");
+            }
+        }
+        size = types.size();
+
+        // check size
+        if(method.paramData.size() != size){
+            System.out.println("Type Error: " + ctx.getText() + " " + method.methodName + " expected " + method.paramData.size() + " parameters, but only " + size + " given");
+            System.exit(0);
+        }
+
+        // check type
+        if(method.paramData.size() != 0){
+            int i = 0;
+            for(Map.Entry<String, VariableDeclaration> entry: method.paramData.entrySet()){
+                String type = entry.getValue().type; // expected type
+                String srcType = types.get(i);
+
+                if(type.compareTo(srcType) != 0){
+                    System.out.println("Type Error: " + method.methodName + " parameters not matched");
+                    System.exit(0);
+                }
+                i++;
+            }
+        }
+
     }
 
     public void printTypeError(String type1, String type2, ParserRuleContext ctx){

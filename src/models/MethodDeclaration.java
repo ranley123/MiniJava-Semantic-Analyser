@@ -9,12 +9,14 @@ public class MethodDeclaration {
     public String type = "";
     public String className;
     public Hashtable<String, VariableDeclaration> varData;
+    public Hashtable<String, VariableDeclaration> paramData;
 
     public MethodDeclaration(String methodName, String type, String className){
         this.methodName = methodName;
         this.type = type;
         this.className = className;
         varData = new Hashtable<String, VariableDeclaration>();
+        paramData = new Hashtable<String, VariableDeclaration>();
     }
 
     public void setClassName(String className){
@@ -27,6 +29,15 @@ public class MethodDeclaration {
             System.exit(0);
         }
         varData.put(varName,variableDeclaration);
+    }
+
+    public void insertParam(String paramName, VariableDeclaration variableDeclaration){
+        if(varData.containsKey(paramName)){
+            System.out.println("Multiple declarations of variable " + paramName + " in method " + methodName);
+            System.exit(0);
+        }
+        varData.put(paramName, variableDeclaration);
+        paramData.put(paramName, variableDeclaration);
     }
 
     public void listVars(){
