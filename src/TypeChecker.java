@@ -73,6 +73,28 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitMethoddecl(MiniJavaGrammarParser.MethoddeclContext ctx) {
+        // when use class as a type
+        if(ctx.type().ID() != null){
+            String className = ctx.type().ID().getText();
+            if(!symbolTable.classData.containsKey(className)){
+                System.out.println("Type Error: " + className + " not declared");
+                System.exit(0);
+            }
+        }
+
+        // check return type
+        String type = ctx.type().getText();
+        String returnType = getExprType(ctx.expr());
+
+        if(type.compareTo(returnType) != 0){
+            System.out.println("Type Error: " + type + " and " + returnType + " not matched in " + ctx.getText());
+        }
+
+        return super.visitMethoddecl(ctx);
+    }
+
+    @Override
     public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
         String type = getExprType(ctx);
 //        System.out.println(type);
