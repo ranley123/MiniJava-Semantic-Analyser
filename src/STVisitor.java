@@ -44,7 +44,7 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-//        System.out.println("visit var");
+        System.out.println("visit var");
 //        System.out.println(ctx.getRuleIndex());
         String varName = ctx.ID().getText();
         String type = ctx.type().getText();
@@ -129,6 +129,12 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         symbolTable.classData.get(ancestorClass).methodData.get(methodCtx.ID().getText()).insertVar(varName, variableDeclaration);
 //        symbolTable.classData.get(ancestorClass).listMethods();
         return super.visitFormalrest(ctx);
+    }
+
+    @Override
+    public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
+
+        return super.visitStatement(ctx);
     }
 
     public String getAncestorClass(MiniJavaGrammarParser.MethoddeclContext ctx){

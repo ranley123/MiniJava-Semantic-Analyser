@@ -15,15 +15,42 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     @Override
     public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
         if(ctx.EQUALS() != null && ctx.getChildCount() == 4){
+//            System.out.println(ctx.getText());
+
             String type1 = getIDType(ctx);
+//            System.out.println("type 1: " + type1);
+
             String type2 = getExprType(ctx.expr(0));
+//            System.out.println("type 2: " + type2);
+
             if (type1.compareTo(type2) != 0){
-                System.out.println("Error: Type not matched");
+                printTypeError(type1, type2, ctx);
                 System.exit(0);
             }
         }
         else if(ctx.EQUALS() != null && ctx.getChildCount() == 7){
+            String type1 = getExprType(ctx.expr(0));
+            String type2 = getExprType(ctx.expr(1));
+            if(type1.compareTo("int") != 0 || type2.compareTo("int") != 0){
+                printTypeError(type1, type2, ctx);
 
+                System.exit(0);
+            }
+        }
+        else if (ctx.WHILE() != null || ctx.IF() != null){
+            String type = getExprType(ctx.expr(0));
+            if(type.compareTo("boolean") == 0){
+                printTypeError(type, "while", ctx);
+                System.exit(0);
+            }
+        }
+
+        else if(ctx.SYSTEMOUT() != null){
+            String type = getExprType(ctx.expr(0));
+            if(!(type.compareTo("int") == 0 || type.compareTo("int[]") == 0 || type.compareTo("boolean") == 0)){
+                printTypeError(type, "System.out", ctx);
+                System.exit(0);
+            }
         }
         return super.visitStatement(ctx);
     }
@@ -37,6 +64,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
 
     public String getExprType(MiniJavaGrammarParser.ExprContext ctx){
         int exprKind = getExprKind(ctx);
+//        System.out.println(exprKind);
         switch (exprKind){
             case 0:{
                 String type1 = getExprType(ctx.expr(0));
@@ -46,7 +74,8 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                     return type1;
                 }
                 else{
-                    System.out.println("Error: Type not matched");
+                    printTypeError(type1, type2, ctx);
+
                     System.exit(0);
                 }
                 break;
@@ -56,11 +85,13 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 String type1 = getExprType(ctx.expr(0));
                 String type2 = getExprType(ctx.expr(1));
                 if (type2.compareTo("int") != 0){
-                    System.out.println("Error: Type not matched");
+                    printTypeError(type1, type2, ctx);
+
                     System.exit(0);
                 }
                 if(type1.compareTo("int[]") != 0){
-                    System.out.println("Error: Type not matched");
+                    printTypeError(type1, type2, ctx);
+
                     System.exit(0);
                 }
                 return "int";
@@ -69,7 +100,8 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             case 2:{
                 String type = getExprType(ctx.expr(0));
                 if(type.compareTo("int[]") != 0){
-                    System.out.println("Error: Type not matched");
+                    printTypeError(type, "int[]", ctx);
+
                     System.exit(0);
                 }
                 return "int";
@@ -77,7 +109,14 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
 
             // for calling method. this.computeFac(2) the type should be computeFac()
             case 3: {
-                return getIDType(ctx);
+                String className = getExprType(ctx.expr(0));
+//                String type = getIDType(ctx);
+                String methodName = ctx.ID().getText();
+//                System.out.println("classname " + className);
+//                System.out.println(className);
+                String type = symbolTable.classData.get(className).methodData.get(methodName).type;
+//                System.out.println(type);
+                return type;
 
             }
 
@@ -94,20 +133,23 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 return getIDType(ctx);
             }
 
-            // this
+            // THIS
             case 7: {
-                break;
+                return getIDType(ctx);
             }
             case 8:{
                 return "int[]";
             }
+
+            // NEW ID LPAREN RPAREN
             case 9:{
                 return getIDType(ctx);
             }
             case 10:{
                 String type = getExprType(ctx.expr(0));
                 if(type.compareTo("boolean") != 0){
-                    System.out.println("Error: Type not matched");
+                    printTypeError(type, "boolean", ctx);
+
                     System.exit(0);
                 }
                 return "boolean";
@@ -170,7 +212,13 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         String className = null;
 
         if (ctx instanceof MiniJavaGrammarParser.ExprContext){
-            IDName = ((MiniJavaGrammarParser.ExprContext) ctx).ID().getText();
+            if(((MiniJavaGrammarParser.ExprContext) ctx).THIS() != null){
+                IDName = "this";
+            }
+            else{
+                IDName = ((MiniJavaGrammarParser.ExprContext) ctx).ID().getText();
+            }
+//            System.out.println(IDName);
         }
         else if(ctx instanceof MiniJavaGrammarParser.StatementContext){
             IDName = ((MiniJavaGrammarParser.StatementContext) ctx).ID().getText();
@@ -184,12 +232,17 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 className = ((MiniJavaGrammarParser.ClassdeclContext) ctx).ID(0).getText();
                 break;
             }
+            if(ctx instanceof MiniJavaGrammarParser.MainclassContext){
+                className = ((MiniJavaGrammarParser.MainclassContext) ctx).ID(0).getText();
+                break;
+            }
             if(ctx instanceof MiniJavaGrammarParser.ProgramContext){
                 return "string";
             }
             ctx = ctx.getParent();
         }
-
+//        System.out.println(IDName);
+//        symbolTable.listClassesDetailed();
         // find class var first from varData
         ClassDeclaration curClass = symbolTable.classData.get(className);
         MethodDeclaration curMethod = null;
@@ -205,7 +258,26 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         else if(curMethod != null && curMethod.varData.containsKey(IDName)){
             return curMethod.varData.get(IDName).type;
         }
-        return "not declared";
+        else if(symbolTable.classData.containsKey(IDName)){
+            return IDName;
+        }
+        else if(IDName.compareTo("this") == 0){
+            return className;
+        }
+        System.out.println("not declared: " + IDName);
+        return "string";
+    }
+
+    public void printTypeError(String type1, String type2, ParserRuleContext ctx){
+        if(ctx instanceof MiniJavaGrammarParser.StatementContext){
+            MiniJavaGrammarParser.StatementContext curCtx = (MiniJavaGrammarParser.StatementContext) ctx;
+            System.out.println("Type Error: " + type1 + " and " + type2 + " not matched in " + curCtx.getText());
+        }
+        else if(ctx instanceof MiniJavaGrammarParser.ExprContext){
+            MiniJavaGrammarParser.ExprContext curCtx = (MiniJavaGrammarParser.ExprContext) ctx;
+            System.out.println("Type Error: " + type1 + " and " + type2 + " not matched in " + curCtx.getText());
+
+        }
 
     }
 

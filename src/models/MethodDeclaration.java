@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class MethodDeclaration {
     public String methodName = "";
-    public String type;
+    public String type = "";
     public String className;
     public Hashtable<String, VariableDeclaration> varData;
 
