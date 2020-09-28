@@ -60,6 +60,19 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
+        // when use class as a type
+        if(ctx.type().ID() != null){
+            String className = ctx.type().ID().getText();
+            if(!symbolTable.classData.containsKey(className)){
+                System.out.println("Type Error: " + className + " not declared");
+                System.exit(0);
+            }
+        }
+        return super.visitVardecl(ctx);
+    }
+
+    @Override
     public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
         String type = getExprType(ctx);
 //        System.out.println(type);

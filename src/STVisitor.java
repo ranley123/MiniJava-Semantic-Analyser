@@ -44,7 +44,6 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-        System.out.println("visit var");
 //        System.out.println(ctx.getRuleIndex());
         String varName = ctx.ID().getText();
         String type = ctx.type().getText();
