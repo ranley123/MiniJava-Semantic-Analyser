@@ -1,5 +1,4 @@
 grammar MiniJavaGrammar ;
-
 program : mainclass classdecl* ;
 
 mainclass : CLASS ID LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE ID RPAREN LBRACE statement RBRACE RBRACE

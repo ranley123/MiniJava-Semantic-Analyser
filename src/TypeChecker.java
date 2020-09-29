@@ -94,13 +94,6 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         return super.visitMethoddecl(ctx);
     }
 
-    @Override
-    public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
-        String type = getExprType(ctx);
-//        System.out.println(type);
-        return super.visitExpr(ctx);
-    }
-
     public String getExprType(MiniJavaGrammarParser.ExprContext ctx){
         int exprKind = getExprKind(ctx);
 //        System.out.println(exprKind);
