@@ -1,21 +1,18 @@
 class Test1 {
     public static void main(String[] a){
-        System.out.println(new Test().Start(42, 56, 99));
+        System.out.println(new Test().Start());
     }
 }
 
 class Test {
     int a;
     int b;
-    public int Start(int bob, int zz , int jj) {
-        int x;
-        x = bob + zz + jj;
+    a=1;
+    b=2;
+    public int Start() {
+        int a;
+        a = 2;
 
-        return x;
-    }
-
-    public int f(int y) {
-        y = y + 1;
-        return y;
+        return a;
     }
 }

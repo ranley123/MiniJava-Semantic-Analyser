@@ -6,29 +6,21 @@ import java.util.Set;
 
 public class MethodDeclaration {
     public String methodName = "";
-    public String type;
+    public String type = "";
     public String className;
-    public Hashtable<String, VariableDeclaration> paramData;
     public Hashtable<String, VariableDeclaration> varData;
+    public Hashtable<String, VariableDeclaration> paramData;
 
     public MethodDeclaration(String methodName, String type, String className){
         this.methodName = methodName;
         this.type = type;
         this.className = className;
-        paramData = new Hashtable<String, VariableDeclaration>();
         varData = new Hashtable<String, VariableDeclaration>();
+        paramData = new Hashtable<String, VariableDeclaration>();
     }
 
     public void setClassName(String className){
         this.className = className;
-    }
-
-    public void insertParam(String paramName, String type){
-        if(paramData.containsKey(paramName)){
-            System.out.println("Multiple declarations of parameter " + paramName + " in method " + methodName);
-            System.exit(0);
-        }
-        paramData.put(paramName, new VariableDeclaration(paramName, type, this.methodName));
     }
 
     public void insertVar(String varName, VariableDeclaration variableDeclaration){
@@ -39,6 +31,15 @@ public class MethodDeclaration {
         varData.put(varName,variableDeclaration);
     }
 
+    public void insertParam(String paramName, VariableDeclaration variableDeclaration){
+        if(varData.containsKey(paramName)){
+            System.out.println("Multiple declarations of variable " + paramName + " in method " + methodName);
+            System.exit(0);
+        }
+        varData.put(paramName, variableDeclaration);
+        paramData.put(paramName, variableDeclaration);
+    }
+
     public void listVars(){
         System.out.println("Method " + this.methodName + " contains variables: ");
         Set<Map.Entry<String, VariableDeclaration>> entrySet = varData.entrySet();
@@ -47,11 +48,4 @@ public class MethodDeclaration {
         }
     }
 
-    public void listParams(){
-        System.out.println("Method " + this.methodName + " contains parameters: ");
-        Set<Map.Entry<String, VariableDeclaration>> entrySet = paramData.entrySet();
-        for (Map.Entry<String, VariableDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + ": " + entry.getValue().type);
-        }
-    }
 }

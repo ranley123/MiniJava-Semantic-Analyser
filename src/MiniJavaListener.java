@@ -1,9 +1,5 @@
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import utils.MiniJavaGrammarBaseListener;
 import utils.MiniJavaGrammarParser;
-
-import java.util.Vector;
 
 public class MiniJavaListener extends MiniJavaGrammarBaseListener {
 
@@ -32,7 +28,8 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
 
     @Override
     public void exitProgram(MiniJavaGrammarParser.ProgramContext ctx) {
-
+//        STVisitor visitor = new STVisitor();
+//        ctx.accept(visitor);
     }
 
     @Override
@@ -45,6 +42,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     @Override
     public void exitMainclass(MiniJavaGrammarParser.MainclassContext ctx) {
 //      //  System.out.println("exitMainClass");
+
     }
 
     //
@@ -64,14 +62,14 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     @Override
     public void enterVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
 //        System.out.println(ctx.toInfoString(this.parser));
-        System.out.println("enter var");
+//        System.out.println("enter var");
 
     }
 
     //
     @Override
     public void exitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-        System.out.println("exit var");
+//        System.out.println("exit var");
 
     }
 
