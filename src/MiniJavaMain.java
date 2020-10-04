@@ -6,6 +6,7 @@ import utils.MiniJavaGrammarParser;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 
 public class MiniJavaMain {
 
@@ -32,15 +33,13 @@ public class MiniJavaMain {
 
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        STVisitor visitor = new STVisitor();
-        tree.accept(visitor);
+        MiniJavaListener scopeListener = new MiniJavaListener(parser);
 
-        TypeChecker checker = new TypeChecker(visitor.symbolTable);
+        walker.walk(scopeListener, tree);
 
-        MiniJavaListener typecheck = new MiniJavaListener(parser);
+        TypeChecker typeChecker = new TypeChecker(scopeListener.scopeChecker.symbolTable);
 
-//        walker.walk(typecheck, tree);tree
-        tree.accept(checker);
+        tree.accept(typeChecker);
 
     }
 

@@ -14,6 +14,12 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitProgram(MiniJavaGrammarParser.ProgramContext ctx) {
+
+        return super.visitProgram(ctx);
+    }
+
+    @Override
     public Void visitMainclass(MiniJavaGrammarParser.MainclassContext ctx) {
 //        System.out.println("visit mainclass");
         String className = ctx.ID(0).getText();
@@ -79,7 +85,6 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitMethoddecl(MiniJavaGrammarParser.MethoddeclContext ctx) {
-//        System.out.println(ctx.getAltNumber());
 
 //        System.out.println("visit method");
         String methodName = ctx.ID().getText();
@@ -90,7 +95,6 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         MiniJavaGrammarParser.ClassdeclContext parent = (MiniJavaGrammarParser.ClassdeclContext)ctx.getParent();
         String className = parent.ID(0).getText();
         MethodDeclaration newMethod = new MethodDeclaration(methodName, type, className);
-
         // add to parent class
         ClassDeclaration parentClass = symbolTable.classData.get(className);
         parentClass.insertMethod(methodName, newMethod);
@@ -130,15 +134,95 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         return super.visitFormalrest(ctx);
     }
 
-    @Override
-    public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
+//    @Override
+//    public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
+//        if(ctx.ID() != null){
+//            if(!IDExists(ctx)){
+//                System.out.println("Not Declared: " + ctx.ID().getText() + " in: " + ctx.getText());
+//                System.exit(0);
+//            }
+//        }
+//
+//        return super.visitStatement(ctx);
+//    }
 
-        return super.visitStatement(ctx);
+//    @Override
+//    public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
+//        if(ctx.ID() != null){
+//            if(!IDExists(ctx)){
+//                System.out.println("Not Declared: " + ctx.ID().getText() + " in: " + ctx.getText());
+//                System.exit(0);
+//            }
+//        }
+//        return super.visitExpr(ctx);
+//    }
+
+    @Override
+    public Void visitType(MiniJavaGrammarParser.TypeContext ctx) {
+        return super.visitType(ctx);
     }
 
     public String getAncestorClass(MiniJavaGrammarParser.MethoddeclContext ctx){
         MiniJavaGrammarParser.ClassdeclContext ancestor = (MiniJavaGrammarParser.ClassdeclContext) ctx.getParent();
         return ancestor.ID(0).getText();
     }
+
+//    public boolean IDExists(ParserRuleContext ctx){
+//        String IDName = "";
+//        String methodName = null;
+//        String className = null;
+//
+//        if (ctx instanceof MiniJavaGrammarParser.ExprContext){
+//            if(((MiniJavaGrammarParser.ExprContext) ctx).THIS() != null){
+//                IDName = "this";
+//            }
+//            else{
+//                IDName = ((MiniJavaGrammarParser.ExprContext) ctx).ID().getText();
+//            }
+////            System.out.println(IDName);
+//        }
+//        else if(ctx instanceof MiniJavaGrammarParser.StatementContext){
+//            IDName = ((MiniJavaGrammarParser.StatementContext) ctx).ID().getText();
+//        }
+//
+//        while(true){
+//            if(ctx instanceof MiniJavaGrammarParser.MethoddeclContext){
+//                methodName = ((MiniJavaGrammarParser.MethoddeclContext) ctx).ID().getText();
+//            }
+//            if(ctx instanceof MiniJavaGrammarParser.ClassdeclContext){
+//                className = ((MiniJavaGrammarParser.ClassdeclContext) ctx).ID(0).getText();
+//                break;
+//            }
+//            if(ctx instanceof MiniJavaGrammarParser.MainclassContext){
+//                className = ((MiniJavaGrammarParser.MainclassContext) ctx).ID(0).getText();
+//                break;
+//            }
+//            ctx = ctx.getParent();
+//        }
+////        System.out.println(IDName);
+////        symbolTable.listClassesDetailed();
+//        // find class var first from varData
+//        ClassDeclaration curClass = symbolTable.classData.get(className);
+//        MethodDeclaration curMethod = null;
+//        if(methodName != null){
+//            curMethod = curClass.methodData.get(methodName);
+//        }
+//        if(curClass.varData.containsKey(IDName)){
+//            return true;
+//        }
+//        else if(curClass.methodData.containsKey(IDName)){
+//            return true;
+//        }
+//        else if(curMethod != null && curMethod.varData.containsKey(IDName)){
+//            return true;
+//        }
+//        else if(symbolTable.classData.containsKey(IDName)){
+//            return true;
+//        }
+//        else if(IDName.compareTo("this") == 0){
+//            return true;
+//        }
+//        return false;
+//    }
 
 }
