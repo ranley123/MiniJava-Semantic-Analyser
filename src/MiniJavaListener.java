@@ -1,7 +1,5 @@
 import models.ClassDeclaration;
 import models.SymbolTable;
-import utils.MiniJavaGrammarBaseListener;
-import utils.MiniJavaGrammarParser;
 
 import java.util.Hashtable;
 import java.util.Map;

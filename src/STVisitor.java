@@ -2,8 +2,6 @@ import models.ClassDeclaration;
 import models.MethodDeclaration;
 import models.SymbolTable;
 import models.VariableDeclaration;
-import utils.MiniJavaGrammarBaseVisitor;
-import utils.MiniJavaGrammarParser;
 
 
 public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {

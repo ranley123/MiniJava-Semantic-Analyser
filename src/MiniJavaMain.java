@@ -1,12 +1,9 @@
 import models.SymbolTable;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-import utils.MiniJavaGrammarLexer;
-import utils.MiniJavaGrammarParser;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 
 public class MiniJavaMain {
 
