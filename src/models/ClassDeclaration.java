@@ -37,6 +37,15 @@ public class ClassDeclaration {
         varData.put(varName, variableDeclaration);
     }
 
+    public boolean hasVar(String name){
+        return this.varData.containsKey(name);
+    }
+
+    public boolean hasMethod(String name){
+        return this.methodData.containsKey(name);
+    }
+
+
     public void listVars(){
         System.out.println("Class " + this.className + " contains variables: ");
         Set<Map.Entry<String, VariableDeclaration>> entrySet = varData.entrySet();

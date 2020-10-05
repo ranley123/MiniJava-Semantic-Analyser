@@ -1,11 +1,8 @@
 import models.ClassDeclaration;
 import models.MethodDeclaration;
 import models.SymbolTable;
-import models.VariableDeclaration;
 import org.antlr.v4.runtime.ParserRuleContext;
-
 import java.util.ArrayList;
-import java.util.Map;
 
 public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     SymbolTable symbolTable;
@@ -29,7 +26,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             String type2 = getExprType(ctx.expr(0));
 //            System.out.println("type 2: " + type2);
 
-            if (type1.compareTo(type2) != 0){
+            if (!(type1.compareTo(type2) == 0 || (type2.compareTo(BOOLEAN) == 0 && type1.compareTo(INT) == 0) || (type1.compareTo(BOOLEAN) == 0 && type2.compareTo(INT) == 0))){
                 printTypeError(type1, type2, ctx);
 //                System.exit(0);
             }
@@ -307,6 +304,12 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         else if(IDName.compareTo("this") == 0){
             return className;
         }
+        else if(symbolTable.classData.get(curClass.extendsFrom).hasVar(IDName)){
+            return symbolTable.classData.get(curClass.extendsFrom).varData.get(IDName).type;
+        }
+        else if(symbolTable.classData.get(curClass.extendsFrom).hasMethod(IDName)){
+            return symbolTable.classData.get(curClass.extendsFrom).methodData.get(IDName).type;
+        }
         System.out.println("not declared: " + IDName);
         return "string";
     }
@@ -365,6 +368,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         }
 
     }
+
 
 }
 

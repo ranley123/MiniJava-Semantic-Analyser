@@ -3,6 +3,8 @@ import models.MethodDeclaration;
 import models.SymbolTable;
 import models.VariableDeclaration;
 
+import java.util.ArrayList;
+
 
 public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
     SymbolTable symbolTable;
@@ -13,6 +15,22 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitProgram(MiniJavaGrammarParser.ProgramContext ctx) {
+        ArrayList<String> classNames = new ArrayList<>();
+        ArrayList<String> superclassNames = new ArrayList<>();
+
+        if(ctx.classdecl().size() > 0){
+            for(int i = 0; i < ctx.classdecl().size(); i++){
+                classNames.add(ctx.classdecl(i).ID(0).getText());
+                if(ctx.classdecl(i).ID().size() > 1){
+                    superclassNames.add(ctx.classdecl(i).ID(1).getText());
+                }
+            }
+            for(String name: superclassNames){
+                if(!classNames.contains(name)){
+                    System.out.println("Class " + name + " has not been declared");
+                }
+            }
+        }
 
         return super.visitProgram(ctx);
     }
@@ -48,7 +66,7 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
 
     @Override
     public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-//        System.out.println(ctx.getRuleIndex());
+//        System.out.println(ctx.getText());
         String varName = ctx.ID().getText();
         String type = ctx.type().getText();
         String prevname = "";
@@ -132,29 +150,6 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         return super.visitFormalrest(ctx);
     }
 
-//    @Override
-//    public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
-//        if(ctx.ID() != null){
-//            if(!IDExists(ctx)){
-//                System.out.println("Not Declared: " + ctx.ID().getText() + " in: " + ctx.getText());
-//                System.exit(0);
-//            }
-//        }
-//
-//        return super.visitStatement(ctx);
-//    }
-
-//    @Override
-//    public Void visitExpr(MiniJavaGrammarParser.ExprContext ctx) {
-//        if(ctx.ID() != null){
-//            if(!IDExists(ctx)){
-//                System.out.println("Not Declared: " + ctx.ID().getText() + " in: " + ctx.getText());
-//                System.exit(0);
-//            }
-//        }
-//        return super.visitExpr(ctx);
-//    }
-
     @Override
     public Void visitType(MiniJavaGrammarParser.TypeContext ctx) {
         return super.visitType(ctx);
@@ -164,63 +159,5 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
         MiniJavaGrammarParser.ClassdeclContext ancestor = (MiniJavaGrammarParser.ClassdeclContext) ctx.getParent();
         return ancestor.ID(0).getText();
     }
-
-//    public boolean IDExists(ParserRuleContext ctx){
-//        String IDName = "";
-//        String methodName = null;
-//        String className = null;
-//
-//        if (ctx instanceof MiniJavaGrammarParser.ExprContext){
-//            if(((MiniJavaGrammarParser.ExprContext) ctx).THIS() != null){
-//                IDName = "this";
-//            }
-//            else{
-//                IDName = ((MiniJavaGrammarParser.ExprContext) ctx).ID().getText();
-//            }
-////            System.out.println(IDName);
-//        }
-//        else if(ctx instanceof MiniJavaGrammarParser.StatementContext){
-//            IDName = ((MiniJavaGrammarParser.StatementContext) ctx).ID().getText();
-//        }
-//
-//        while(true){
-//            if(ctx instanceof MiniJavaGrammarParser.MethoddeclContext){
-//                methodName = ((MiniJavaGrammarParser.MethoddeclContext) ctx).ID().getText();
-//            }
-//            if(ctx instanceof MiniJavaGrammarParser.ClassdeclContext){
-//                className = ((MiniJavaGrammarParser.ClassdeclContext) ctx).ID(0).getText();
-//                break;
-//            }
-//            if(ctx instanceof MiniJavaGrammarParser.MainclassContext){
-//                className = ((MiniJavaGrammarParser.MainclassContext) ctx).ID(0).getText();
-//                break;
-//            }
-//            ctx = ctx.getParent();
-//        }
-////        System.out.println(IDName);
-////        symbolTable.listClassesDetailed();
-//        // find class var first from varData
-//        ClassDeclaration curClass = symbolTable.classData.get(className);
-//        MethodDeclaration curMethod = null;
-//        if(methodName != null){
-//            curMethod = curClass.methodData.get(methodName);
-//        }
-//        if(curClass.varData.containsKey(IDName)){
-//            return true;
-//        }
-//        else if(curClass.methodData.containsKey(IDName)){
-//            return true;
-//        }
-//        else if(curMethod != null && curMethod.varData.containsKey(IDName)){
-//            return true;
-//        }
-//        else if(symbolTable.classData.containsKey(IDName)){
-//            return true;
-//        }
-//        else if(IDName.compareTo("this") == 0){
-//            return true;
-//        }
-//        return false;
-//    }
 
 }
