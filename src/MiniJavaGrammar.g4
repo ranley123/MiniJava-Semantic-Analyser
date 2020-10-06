@@ -21,6 +21,7 @@ type : INT LSQUARE RSQUARE
      | INT
      | ID
      | FLOAT
+     | ID LSQUARE RSQUARE
      ;
 
 statement : LBRACE statement* RBRACE
@@ -40,11 +41,12 @@ expr : expr op expr
      | FALSE
      | ID
      | THIS
-     | NEW INT LSQUARE exprlist RSQUARE
+     | NEW INT LSQUARE expr RSQUARE
      | NEW ID LPAREN RPAREN
      | NOT expr
      | LPAREN expr RPAREN
      | FLOATNUM
+     | NEW ID LSQUARE expr RSQUARE
     ;
 
 op : AND | LT | PLUS | MINUS | MUL ;

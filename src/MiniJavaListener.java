@@ -6,18 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class MiniJavaListener extends MiniJavaGrammarBaseListener {
-
-
     MiniJavaGrammarParser parser;
     STVisitor scopeChecker = new STVisitor();
-
-
-
-    public void printError(String error) {
-        System.err.println(error);
-        System.exit(-1);
-    }
-
 
     public MiniJavaListener(MiniJavaGrammarParser parse) {
         this.parser = parser;

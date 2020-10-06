@@ -7,7 +7,6 @@ import java.util.Set;
 public class ClassDeclaration {
     public String className = "";
     public String extendsFrom = "";
-    public String extendsTo = "";
     public Hashtable<String, VariableDeclaration> varData;
     public Hashtable<String, MethodDeclaration> methodData;
 

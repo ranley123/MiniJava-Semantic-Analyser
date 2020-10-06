@@ -18,32 +18,38 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
     @Override
     public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
         if(ctx.EQUALS() != null && ctx.getChildCount() == 4){
-//            System.out.println(ctx.getText());
-
             String type1 = getIDType(ctx);
-//            System.out.println("type 1: " + type1);
-
             String type2 = getExprType(ctx.expr(0));
-//            System.out.println("type 2: " + type2);
 
             if (!(type1.compareTo(type2) == 0 || (type2.compareTo(BOOLEAN) == 0 && type1.compareTo(INT) == 0) || (type1.compareTo(BOOLEAN) == 0 && type2.compareTo(INT) == 0))){
-                printTypeError(type1, type2, ctx);
-//                System.exit(0);
+                if(!isTypeMatched(type1, type2)){
+                    printTypeError(type1, type2, ctx.getText());
+                }
             }
         }
         else if(ctx.EQUALS() != null && ctx.getChildCount() == 7){
             String type1 = getExprType(ctx.expr(0));
             String type2 = getExprType(ctx.expr(1));
-            if(type1.compareTo(INT) != 0 || type2.compareTo(INT) != 0){
-                printTypeError(type1, type2, ctx);
 
-//                System.exit(0);
+            if(type1.compareTo(INT) != 0){
+                printTypeError(type1, INT, ctx.getText());
             }
+            else{
+                String destType = getIDType(ctx);
+                destType = destType.substring(0, destType.length() - 2);
+                if(type2.compareTo(destType) != 0){
+                    if(!isTypeMatched(destType, type2)){
+                        printTypeError(destType, type2, ctx.getText());
+                    }
+                }
+            }
+
+
         }
         else if (ctx.WHILE() != null || ctx.IF() != null){
             String type = getExprType(ctx.expr(0));
             if(type.compareTo(BOOLEAN) != 0 && type.compareTo(INT) != 0){
-                printTypeError(type, "while", ctx);
+                printTypeError(type, "while", ctx.getText());
 //                System.exit(0);
             }
         }
@@ -51,7 +57,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         else if(ctx.SYSTEMOUT() != null){
             String type = getExprType(ctx.expr(0));
             if(!(type.compareTo(INT) == 0 || type.compareTo(INTARRAY) == 0 || type.compareTo(BOOLEAN) == 0)){
-                printTypeError(type, "System.out", ctx);
+                printTypeError(type, "System.out", ctx.getText());
 //                System.exit(0);
             }
         }
@@ -105,7 +111,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                     return type1;
                 }
                 else{
-                    printTypeError(type1, type2, ctx);
+                    printTypeError(type1, type2, ctx.getText());
 
 //                    System.exit(0);
                 }
@@ -116,12 +122,12 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 String type1 = getExprType(ctx.expr(0));
                 String type2 = getExprType(ctx.expr(1));
                 if (type2.compareTo(INT) != 0){
-                    printTypeError(type1, type2, ctx);
+                    printTypeError(type1, type2, ctx.getText());
 
 //                    System.exit(0);
                 }
                 if(type1.compareTo(INTARRAY) != 0){
-                    printTypeError(type1, type2, ctx);
+                    printTypeError(type1, type2, ctx.getText());
 
 //                    System.exit(0);
                 }
@@ -131,7 +137,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             case 2:{
                 String type = getExprType(ctx.expr(0));
                 if(type.compareTo(INTARRAY) != 0){
-                    printTypeError(type, INTARRAY, ctx);
+                    printTypeError(type, INTARRAY, ctx.getText());
 
 //                    System.exit(0);
                 }
@@ -171,6 +177,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             case 7: {
                 return getIDType(ctx);
             }
+            // new int[]
             case 8:{
                 return INTARRAY;
             }
@@ -179,7 +186,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             case 10:{
                 String type = getExprType(ctx.expr(0));
                 if(type.compareTo(BOOLEAN) != 0 && type.compareTo(INT) != 0){
-                    printTypeError(type, BOOLEAN, ctx);
+                    printTypeError(type, BOOLEAN, ctx.getText());
 
 //                    System.exit(0);
                 }
@@ -192,6 +199,10 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
 
             case 12:{
                 return FLOAT;
+            }
+
+            case 13:{
+                return ctx.ID().getText() + "[]";
             }
 
         }
@@ -233,7 +244,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         else if(ctx.NEW() != null && ctx.INT() != null){
             return 8;
         }
-        else if(ctx.NEW() != null && ctx.ID() != null){
+        else if(ctx.NEW() != null && ctx.ID() != null && ctx.LPAREN() != null){
             return 9;
         }
         else if(ctx.NOT() != null){
@@ -241,6 +252,9 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         }
         else if(ctx.LPAREN() != null && ctx.getChildCount() == 3){
             return 11;
+        }
+        else if(ctx.NEW() != null && ctx.ID() != null && ctx.LSQUARE()!= null){
+            return 13;
         }
 
         return kind;
@@ -281,8 +295,6 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             }
             ctx = ctx.getParent();
         }
-//        System.out.println(IDName);
-//        symbolTable.listClassesDetailed();
         // find class var first from varData
         ClassDeclaration curClass = symbolTable.classData.get(className);
         MethodDeclaration curMethod = null;
@@ -329,7 +341,6 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 for(int i = 0; i < list.exprrest().size(); i++){
                     types.add(getExprType(list.exprrest(i).expr()));
                 }
-//                System.out.println("h");
             }
         }
         size = types.size();
@@ -347,8 +358,9 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 String srcType = types.get(i);
 
                 if(destType.compareTo(srcType) != 0){
-                    System.out.println("Type Error: " + method.methodName + " parameters not matched in " + ctx.getText() + " expected type: " + destType + " given type: " + srcType);
-//                    System.exit(0);
+                    if(!isTypeMatched(destType, srcType)){
+                        printTypeError(destType, srcType, ctx.getText());
+                    }
                 }
                 i++;
             }
@@ -356,17 +368,37 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
 
     }
 
-    public void printTypeError(String type1, String type2, ParserRuleContext ctx){
-        if(ctx instanceof MiniJavaGrammarParser.StatementContext){
-            MiniJavaGrammarParser.StatementContext curCtx = (MiniJavaGrammarParser.StatementContext) ctx;
-            System.out.println("Type Error: " + type1 + " and " + type2 + " not matched in " + curCtx.getText());
-        }
-        else if(ctx instanceof MiniJavaGrammarParser.ExprContext){
-            MiniJavaGrammarParser.ExprContext curCtx = (MiniJavaGrammarParser.ExprContext) ctx;
-            System.out.println("Type Error: " + type1 + " and " + type2 + " not matched in " + curCtx.getText());
+    public void printTypeError(String type1, String type2, String text){
+        System.out.println("Type Error: " + type1 + " and " + type2 + " not matched in " + text);
 
-        }
+    }
 
+    public boolean isPrimitiveType(String type){
+        return type.compareTo(INT) == 0 || type.compareTo(INTARRAY) == 0 || type.compareTo(FLOAT) == 0 || type.compareTo(BOOLEAN) == 0;
+    }
+
+    public ArrayList<String> getSuperclassType(String type){
+        // now the type is the class name
+        String superName = symbolTable.classData.get(type).extendsFrom;
+        ArrayList<String> types = new ArrayList<>();
+        types.add(superName);
+        return types;
+    }
+
+    public boolean isTypeMatched(String type1, String type2){
+        if(isPrimitiveType(type1) || isPrimitiveType(type2)){
+            return false;
+        }
+        else{
+            ArrayList<String> types = getSuperclassType(type2);
+
+            for(String type: types){
+                if(type.compareTo(type1) == 0){
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
 
