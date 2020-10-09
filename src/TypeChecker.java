@@ -453,14 +453,18 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         }
         // get the right hand size's all super class types
         else{
-            ArrayList<String> types = getSuperclassType(type2);
-            // check if casting is valid
-            for(String type: types){
-                if(type.compareTo(type1) == 0){
-                    return true;
-                }
+            if(isArray(type1) && isArray(type2)){
+                type1 = type1.substring(0, type1.length() - 2);
+                type2 = type2.substring(0, type2.length() - 2);
             }
-            return false;
+                ArrayList<String> types = getSuperclassType(type2);
+                // check if casting is valid
+                for(String type: types){
+                    if(type.compareTo(type1) == 0){
+                        return true;
+                    }
+                }
+                return false;
         }
     }
 
