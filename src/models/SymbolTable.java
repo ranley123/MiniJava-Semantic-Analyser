@@ -1,35 +1,33 @@
 package models;
-
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The symbol table is responsible for store values and corresponding information,
+ * including types. It provides printing functions at the end after successful compilation
+ *
+ */
 public class SymbolTable {
-    public Hashtable<String, ClassDeclaration> classData = new Hashtable<String, ClassDeclaration>();
+    // the hashtable to store all occurred classes
+    public Hashtable<String, ClassDeclaration> classData  = new Hashtable<String, ClassDeclaration>();
 
-    public void SymbolTable(){
-//        classData ;
-    }
-
+    /**
+     * insert a class. If there is an existing class with the same name, then error comes
+     * @param className         - the new class name
+     * @param classDeclaration  - the ClassDeclaration storing all variables and methods
+     */
     public void insertClass(String className, ClassDeclaration classDeclaration){
         if(classData.containsKey(className)){
-//            throw new Exception("Multiple declarations of class " + className);
             System.out.println("Multiple declarations of class " + className);
             System.exit(0);
         }
-//
-
         classData.put(className, classDeclaration);
     }
 
-    public void listClasses(){
-        System.out.println("Symbol Table contains classes: ");
-        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
-        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + " extended from " + entry.getValue().extendsFrom);
-        }
-    }
-
+    /**
+     * to print all classes' information
+     */
     public void listClassesDetailed(){
         System.out.println("Symbol Table contains classes: ");
         Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
@@ -40,6 +38,9 @@ public class SymbolTable {
         }
     }
 
+    /**
+     * print symbol table after successful compilation
+     */
     public void printSymbolTable(){
         Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
 
@@ -48,10 +49,7 @@ public class SymbolTable {
 
             System.out.println("-----------------------------------");
             System.out.println("-----------------------------------");
-            System.out.println("Class: " + entry.getKey() + "\n");
-
-            System.out.println("Method");
-            System.out.println("-----------------------------------");
+            entry.getValue().listMethods();
 
 
         }

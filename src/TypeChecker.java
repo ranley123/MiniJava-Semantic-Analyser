@@ -15,8 +15,14 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         this.symbolTable = symbolTable;
     }
 
+    /**
+     * For different statements, consider different situations
+     * @param ctx
+     * @return
+     */
     @Override
     public Void visitStatement(MiniJavaGrammarParser.StatementContext ctx) {
+        // ID EQUALS expr SEMICOLON
         if(ctx.EQUALS() != null && ctx.getChildCount() == 4){
             String type1 = getIDType(ctx);
             String type2 = getExprType(ctx.expr(0));
@@ -27,15 +33,18 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 }
             }
         }
+        // ID LSQUARE expr RSQUARE EQUALS expr SEMICOLON
         else if(ctx.EQUALS() != null && ctx.getChildCount() == 7){
             String type1 = getExprType(ctx.expr(0));
             String type2 = getExprType(ctx.expr(1));
 
+            // the index of an array should be an integer
             if(type1.compareTo(INT) != 0){
                 printTypeError(type1, INT, ctx.getText());
             }
             else{
-                String destType = getIDType(ctx);
+                String destType = getIDType(ctx); // expected type
+                // for an array, the type can be "int()", so substring to delete the last 2 letters
                 destType = destType.substring(0, destType.length() - 2);
                 if(type2.compareTo(destType) != 0){
                     if(!isTypeMatched(destType, type2)){
@@ -43,27 +52,28 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                     }
                 }
             }
-
-
         }
+        // WHILE LPAREN expr RPAREN statement
+        // IF LPAREN expr RPAREN statement ELSE statement
         else if (ctx.WHILE() != null || ctx.IF() != null){
             String type = getExprType(ctx.expr(0));
             if(type.compareTo(BOOLEAN) != 0 && type.compareTo(INT) != 0){
                 printTypeError(type, "while", ctx.getText());
-//                System.exit(0);
             }
         }
-
+        // SYSTEMOUT LPAREN expr RPAREN SEMICOLON
         else if(ctx.SYSTEMOUT() != null){
             String type = getExprType(ctx.expr(0));
             if(!(type.compareTo(INT) == 0 || type.compareTo(INTARRAY) == 0 || type.compareTo(BOOLEAN) == 0)){
                 printTypeError(type, "System.out", ctx.getText());
-//                System.exit(0);
             }
         }
         return super.visitStatement(ctx);
     }
 
+    /**
+     * When it uses a class as type, need to check whether the class is declared
+     */
     @Override
     public Void visitVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
         // when use class as a type
@@ -71,27 +81,27 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             String className = ctx.type().ID().getText();
             if(!symbolTable.classData.containsKey(className)){
                 System.out.println("Type Error: " + className + " not declared");
-//                System.exit(0);
             }
         }
         return super.visitVardecl(ctx);
     }
 
+    /**
+     * When it uses a class as a return type
+     */
     @Override
     public Void visitMethoddecl(MiniJavaGrammarParser.MethoddeclContext ctx) {
-        // when use class as a type
+        // when use class as a return type
         if(ctx.type().ID() != null){
             String className = ctx.type().ID().getText();
             if(!symbolTable.classData.containsKey(className)){
                 System.out.println("Type Error: " + className + " not declared");
-//                System.exit(0);
             }
         }
 
         // check return type
         String type = ctx.type().getText();
         String returnType = getExprType(ctx.expr());
-
         if(type.compareTo(returnType) != 0){
             System.out.println("Type Error: " + type + " and " + returnType + " not matched in " + ctx.getText());
         }
@@ -99,11 +109,16 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         return super.visitMethoddecl(ctx);
     }
 
+    /**
+     * Given a expr, get its type
+     */
     public String getExprType(MiniJavaGrammarParser.ExprContext ctx){
         int exprKind = getExprKind(ctx);
 //        System.out.println(exprKind);
         switch (exprKind){
+            // expr op expr
             case 0:{
+                // check operands' types
                 String type1 = getExprType(ctx.expr(0));
                 String type2 = getExprType(ctx.expr(1));
 
@@ -112,35 +127,38 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 }
                 else{
                     printTypeError(type1, type2, ctx.getText());
-
-//                    System.exit(0);
                 }
                 break;
             }
 
+            // expr LSQUARE expr RSQUARE
             case 1:{
                 String type1 = getExprType(ctx.expr(0));
                 String type2 = getExprType(ctx.expr(1));
+
+                // the index of an array must be an integer
                 if (type2.compareTo(INT) != 0){
                     printTypeError(type1, type2, ctx.getText());
-
-//                    System.exit(0);
                 }
+                // the type must be an array
                 if(type1.compareTo(INTARRAY) != 0){
                     printTypeError(type1, type2, ctx.getText());
-
-//                    System.exit(0);
                 }
-                return INT;
+
+                // for an array, such as "int[]", so substring to delete the last 2 letters
+                type1 = type1.substring(0, type1.length() - 2);
+                return type1;
+//                return INT;
             }
 
+            // expr DOT LENGTH
             case 2:{
                 String type = getExprType(ctx.expr(0));
-                if(type.compareTo(INTARRAY) != 0){
-                    printTypeError(type, INTARRAY, ctx.getText());
-
-//                    System.exit(0);
+                if(!isArray(type)){
+                    printTypeError(type, "array", ctx.getText());
                 }
+
+                // length should be an integer
                 return INT;
             }
 
@@ -156,7 +174,6 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 checkParameters(symbolTable.classData.get(className).methodData.get(methodName), ctx);
                 String type = symbolTable.classData.get(className).methodData.get(methodName).type;
                 return type;
-
             }
 
             case 4:{
@@ -179,6 +196,11 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             }
             // new int[]
             case 8:{
+                String type = getExprType(ctx.expr(0));
+                // the array size must be an integer
+                if(type.compareTo(INT) != 0){
+                    printTypeError(type, INT, ctx.getText());
+                }
                 return INTARRAY;
             }
 
@@ -187,20 +209,21 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 String type = getExprType(ctx.expr(0));
                 if(type.compareTo(BOOLEAN) != 0 && type.compareTo(INT) != 0){
                     printTypeError(type, BOOLEAN, ctx.getText());
-
-//                    System.exit(0);
                 }
                 return BOOLEAN;
             }
 
+            // LPAREN expr RPAREN
             case 11:{
                 return getExprType(ctx.expr(0));
             }
 
+            // extension: FLOATNUM
             case 12:{
                 return FLOAT;
             }
 
+            // extension: NEW ID LSQUARE expr RSQUARE
             case 13:{
                 return ctx.ID().getText() + "[]";
             }
@@ -209,6 +232,9 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         return "null";
     }
 
+    /**
+     * Each expression would have its own unique integer
+     */
     public int getExprKind(MiniJavaGrammarParser.ExprContext ctx){
         int kind = -1;
 
@@ -260,6 +286,9 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         return kind;
     }
 
+    /**
+     * Given the current ctx, get the ID type
+     */
     public String getIDType(ParserRuleContext ctx){
         String IDName = "";
         String methodName = null;
@@ -377,21 +406,55 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         return type.compareTo(INT) == 0 || type.compareTo(INTARRAY) == 0 || type.compareTo(FLOAT) == 0 || type.compareTo(BOOLEAN) == 0;
     }
 
+    /**
+     * Given a class type, get all its super class types
+     * @param type  - the type
+     * @return      - an ArrayList containing all super class types
+     */
     public ArrayList<String> getSuperclassType(String type){
-        // now the type is the class name
-        String superName = symbolTable.classData.get(type).extendsFrom;
         ArrayList<String> types = new ArrayList<>();
-        types.add(superName);
+        // now the type is the class name
+        String superName = "";
+        ClassDeclaration curClass = symbolTable.classData.get(type);
+        while(true) {
+            superName = curClass.extendsFrom;
+
+            if(superName.length() > 0) {
+                types.add(superName);
+                curClass = symbolTable.classData.get(superName);
+            }
+            else{
+                break;
+            }
+        }
         return types;
     }
 
+    /**
+     * Check if the type is array type
+     * @param type  - the type to be checked
+     * @return      - true if array type
+     */
+    public boolean isArray(String type){
+        // check if the last 2 chars are []
+        return type.substring(type.length()-2, type.length()).compareTo("[]") == 0;
+    }
+
+    /**
+     * Compare two types for class types
+     * @param type1 - the left hand size type
+     * @param type2 - the right hand size type
+     * @return      - true if they are matched
+     */
     public boolean isTypeMatched(String type1, String type2){
+        // if they are INT, FLOAT, BOOLEAN
         if(isPrimitiveType(type1) || isPrimitiveType(type2)){
             return false;
         }
+        // get the right hand size's all super class types
         else{
             ArrayList<String> types = getSuperclassType(type2);
-
+            // check if casting is valid
             for(String type: types){
                 if(type.compareTo(type1) == 0){
                     return true;

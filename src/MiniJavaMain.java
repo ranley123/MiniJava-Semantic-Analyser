@@ -39,9 +39,5 @@ public class MiniJavaMain {
 
     }
 
-    public static void fillSymbable(){
-
-    }
-
 
 }
