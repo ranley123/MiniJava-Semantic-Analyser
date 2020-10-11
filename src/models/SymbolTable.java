@@ -1,81 +1,74 @@
 package models;
-
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The symbol table is responsible for store values and corresponding information,
+ * including types. It provides printing functions at the end after successful compilation
+ *
+ */
 public class SymbolTable {
-    public Hashtable<String, ClassDeclaration> classData = new Hashtable<String, ClassDeclaration>();
+    // the hashtable to store all occurred classes
+    public Hashtable<String, ClassDeclaration> classData  = new Hashtable<String, ClassDeclaration>();
+    public int errorNum = 0;
 
-    public void SymbolTable(){
-//        classData ;
-    }
-
+    /**
+     * insert a class. If there is an existing class with the same name, then error comes
+     * @param className         - the new class name
+     * @param classDeclaration  - the ClassDeclaration storing all variables and methods
+     */
     public void insertClass(String className, ClassDeclaration classDeclaration){
         if(classData.containsKey(className)){
-//            throw new Exception("Multiple declarations of class " + className);
             System.out.println("Multiple declarations of class " + className);
-            System.exit(0);
-        }
-//
-        String superclassName = classDeclaration.extendsFrom;
-
-        if(superclassName.length() > 0){
-            // check superclass exists
-            if(!classData.containsKey(superclassName)){
-                System.out.println("Class " + superclassName + " has not been declared");
-                System.exit(0);
-            }
-
-            // check superclass is not itself
-            if(className.compareTo(superclassName) == 0){
-                System.out.println("Class " + className + " cannot inherit itself");
-                System.exit(0);
-            }
-
-            // check for circular inheritance
-
-            String grandfather = classData.get(superclassName).extendsFrom;
-            if(grandfather.compareTo(className) == 0){
-                System.out.println("Class " + className + " cannot have circular inheritance");
-                System.exit(0);
-            }
+            errorNum ++;
         }
         classData.put(className, classDeclaration);
     }
 
-    public void listClasses(){
-        System.out.println("Symbol Table contains classes: ");
-        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
-        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + " extended from " + entry.getValue().extendsFrom);
+    /**
+     * Given a class type, get all its super class types
+     * @param type  - the type
+     * @return      - an ArrayList containing all super class types
+     */
+    public ArrayList<String> getSuperclassType(String type){
+        ArrayList<String> types = new ArrayList<>();
+        // now the type is the class name
+        String superName = "";
+        ClassDeclaration curClass = this.classData.get(type);
+        if(curClass == null){
+            System.out.println(type + " not declared");
+            this.errorNum++;
+            return types;
         }
+        while(true) {
+            superName = curClass.extendsFrom;
+
+            if(superName.length() > 0) {
+                types.add(superName);
+                curClass = this.classData.get(superName);
+            }
+            else{
+                break;
+            }
+        }
+        return types;
     }
 
-    public void listClassesDetailed(){
-        System.out.println("Symbol Table contains classes: ");
-        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
-        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + " extended from " + entry.getValue().extendsFrom);
-            entry.getValue().listVars();
-            entry.getValue().listMethods();
-        }
-    }
-
+    /**
+     * print symbol table after successful compilation
+     */
     public void printSymbolTable(){
-        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
-
-        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
-            final Object[][] table = new String[4][];
-
-            System.out.println("-----------------------------------");
-            System.out.println("-----------------------------------");
-            System.out.println("Class: " + entry.getKey() + "\n");
-
-            System.out.println("Method");
-            System.out.println("-----------------------------------");
-
-
+        if(errorNum == 0){
+            Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
+            for(Map.Entry<String, ClassDeclaration> entry: entrySet){
+                entry.getValue().printClass();
+                System.out.println("\n");
+            }
+        }
+        else{
+            System.out.println("There are total " + errorNum + " errors");
         }
 
     }

@@ -1,18 +1,34 @@
 class Test1 {
     public static void main(String[] a){
-        System.out.println(new Test().Start());
+        System.out.println(new Test().Start(42, 56, 99));
     }
+}
+
+class Animal{
+}
+
+class Dog extends Animal{
+
 }
 
 class Test {
     int a;
     int b;
-    a=1;
-    b=2;
-    public int Start() {
-        int a;
-        a = 2;
+    Animal[] exp;
 
-        return a;
+    public int Start(int bob, int zz , int jj) {
+        int x;
+        Dog t;
+        int[] ids;
+        x = bob + zz + jj;
+        exp = new Animal[4];
+        exp[1] = t;
+
+        return x;
+    }
+
+    public int f(int y) {
+        y = y + 1;
+        return y;
     }
 }

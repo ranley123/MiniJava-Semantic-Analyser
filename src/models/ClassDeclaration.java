@@ -1,5 +1,7 @@
 package models;
 
+import javax.annotation.processing.SupportedSourceVersion;
+import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -7,7 +9,6 @@ import java.util.Set;
 public class ClassDeclaration {
     public String className = "";
     public String extendsFrom = "";
-    public String extendsTo = "";
     public Hashtable<String, VariableDeclaration> varData;
     public Hashtable<String, MethodDeclaration> methodData;
 
@@ -37,22 +38,36 @@ public class ClassDeclaration {
         varData.put(varName, variableDeclaration);
     }
 
-    public void listVars(){
-        System.out.println("Class " + this.className + " contains variables: ");
-        Set<Map.Entry<String, VariableDeclaration>> entrySet = varData.entrySet();
-        for (Map.Entry<String, VariableDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + ": " + entry.getValue().type);
-        }
+    public boolean hasVar(String name){
+        return this.varData.containsKey(name);
     }
 
-    public void listMethods(){
-        System.out.println("Class " + this.className + " contains methods: ");
-        Set<Map.Entry<String, MethodDeclaration>> entrySet = methodData.entrySet();
-        for(Map.Entry<String, MethodDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + "()");
-            entry.getValue().listVars();
-            System.out.println("RETURN: " + entry.getValue().type);
+    public boolean hasMethod(String name){
+        return this.methodData.containsKey(name);
+    }
+
+    public void printClass(){
+        System.out.println("----------------------------------------------");
+        System.out.format("%30s\n", "Class: " + className);
+        System.out.println("----------------------------------------------");
+
+        for(Map.Entry<String, VariableDeclaration> e: this.varData.entrySet()){
+            System.out.format("%15s%20s", "Variable: " + e.getKey(), "Type: " + e.getValue().type + "\n");
         }
+        System.out.println();
+
+        for(Map.Entry<String, MethodDeclaration> entry: methodData.entrySet()){
+            System.out.format("%15s%20s", "Method: " + entry.getKey() + "()", "Returns: " + entry.getValue().type + "\n");
+            for(Map.Entry<String, VariableDeclaration> e: entry.getValue().paramData.entrySet()){
+                System.out.format("%20s%20s",  "Param: " + e.getKey(), "Type: " + e.getValue().type + "\n");
+            }
+            for(Map.Entry<String, VariableDeclaration> e: entry.getValue().varData.entrySet()){
+                if(entry.getValue().paramData.containsKey(e.getKey()))
+                    continue;
+                System.out.format("%20s%20s",  "Variable: " + e.getKey(), "Type: " + e.getValue().type + "\n");
+            }
+        }
+
     }
 
 

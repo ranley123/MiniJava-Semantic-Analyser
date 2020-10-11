@@ -1,8 +1,5 @@
-import models.SymbolTable;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
-import utils.MiniJavaGrammarLexer;
-import utils.MiniJavaGrammarParser;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -15,10 +12,20 @@ public class MiniJavaMain {
 
         if (args.length > 0 )
             inputFile = args[0];
+        else if(args.length == 0){
+            System.out.println("Usage: missed argument for filename");
+            System.exit(0);
+        }
 
         InputStream is = System.in;
+        try{
+            if (inputFile != null ) is = new FileInputStream(inputFile);
+        }
+        catch (Exception e){
+            System.out.println("File not found: " + inputFile);
+            System.exit(0);
+        }
 
-        if (inputFile != null ) is = new FileInputStream(inputFile);
 
         ANTLRInputStream input = new ANTLRInputStream(is);
 
@@ -32,19 +39,15 @@ public class MiniJavaMain {
 
         ParseTreeWalker walker = new ParseTreeWalker();
 
-        STVisitor visitor = new STVisitor();
-        tree.accept(visitor);
+        MiniJavaListener scopeListener = new MiniJavaListener(parser);
 
-        TypeChecker checker = new TypeChecker(visitor.symbolTable);
+        walker.walk(scopeListener, tree);
 
-        MiniJavaListener typecheck = new MiniJavaListener(parser);
+        TypeChecker typeChecker = new TypeChecker(scopeListener.scopeChecker.symbolTable);
 
-//        walker.walk(typecheck, tree);tree
-        tree.accept(checker);
+        tree.accept(typeChecker);
 
-    }
-
-    public static void fillSymbable(){
+        typeChecker.symbolTable.printSymbolTable();
 
     }
 

@@ -1,4 +1,4 @@
-grammar MiniJavaGrammar ;
+grammar MiniJavaGrammarEx ;
 program : mainclass classdecl* ;
 
 mainclass : CLASS ID LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LSQUARE RSQUARE ID RPAREN LBRACE statement RBRACE RBRACE
@@ -20,6 +20,7 @@ type : INT LSQUARE RSQUARE
      | BOOLEAN
      | INT
      | ID
+     | FLOAT
      ;
 
 statement : LBRACE statement* RBRACE
@@ -43,6 +44,7 @@ expr : expr op expr
      | NEW ID LPAREN RPAREN
      | NOT expr
      | LPAREN expr RPAREN
+     | FLOATNUM
     ;
 
 op : AND | LT | PLUS | MINUS | MUL ;
@@ -82,6 +84,7 @@ IF : 'if' ;
 ELSE : 'else' ;
 BOOLEAN : 'boolean' ;
 INT : 'int' ;
+FLOAT: 'float';
 SYSTEMOUT : 'System.out.println' ;
 LENGTH : 'length' ;
 NEW : 'new';
@@ -108,3 +111,5 @@ ID  :   LETTER (LETTER | [0-9])* ;
 LETTER : [a-zA-Z] | '_' ;
 
 INTEGER : [0-9]+ ;
+
+FLOATNUM : [0-9]+[.][0-9]+;

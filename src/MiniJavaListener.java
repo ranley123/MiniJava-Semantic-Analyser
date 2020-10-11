@@ -1,17 +1,6 @@
-import utils.MiniJavaGrammarBaseListener;
-import utils.MiniJavaGrammarParser;
-
 public class MiniJavaListener extends MiniJavaGrammarBaseListener {
-
-
     MiniJavaGrammarParser parser;
-
-
-    public void printError(String error) {
-        System.err.println(error);
-        System.exit(-1);
-    }
-
+    STVisitor scopeChecker = new STVisitor();
 
     public MiniJavaListener(MiniJavaGrammarParser parse) {
         this.parser = parser;
@@ -19,22 +8,19 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
 
     @Override
     public void enterProgram(MiniJavaGrammarParser.ProgramContext ctx) {
-        // create a scope for the program
-        System.out.println("Entered program");
-
+        ctx.accept(scopeChecker);
 
     }
 
 
     @Override
     public void exitProgram(MiniJavaGrammarParser.ProgramContext ctx) {
-//        STVisitor visitor = new STVisitor();
-//        ctx.accept(visitor);
+
     }
 
     @Override
     public void enterMainclass(MiniJavaGrammarParser.MainclassContext ctx) {
-        System.out.println("Entered main class");
+//        scopeChecker.visitMainclass(ctx);
 
     }
 
@@ -48,7 +34,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterClassdecl(MiniJavaGrammarParser.ClassdeclContext ctx) {
-
+//        scopeChecker.visitClassdecl(ctx);
 //
     }
 
@@ -61,8 +47,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterVardecl(MiniJavaGrammarParser.VardeclContext ctx) {
-//        System.out.println(ctx.toInfoString(this.parser));
-//        System.out.println("enter var");
+//        scopeChecker.visitVardecl(ctx);
 
     }
 
@@ -76,7 +61,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterMethoddecl(MiniJavaGrammarParser.MethoddeclContext ctx) {
-
+//        scopeChecker.visitMethoddecl(ctx);
     }
 
     //
@@ -88,7 +73,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterFormallist(MiniJavaGrammarParser.FormallistContext ctx) {
-
+//        scopeChecker.visitFormallist(ctx);
     }
 
     //
@@ -100,7 +85,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterFormalrest(MiniJavaGrammarParser.FormalrestContext ctx) {
-
+//        scopeChecker.visitFormalrest(ctx);
     }
 
 
@@ -113,7 +98,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     //
     @Override
     public void enterType(MiniJavaGrammarParser.TypeContext ctx) {
-
+//        scopeChecker.visitType(ctx);
     }
 
     @Override
@@ -125,7 +110,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
 
     @Override
     public void enterStatement(MiniJavaGrammarParser.StatementContext ctx) {
-
+//        scopeChecker.visitStatement(ctx);
     }
 
 
@@ -146,7 +131,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
 
     @Override
     public void enterExprlist(MiniJavaGrammarParser.ExprlistContext ctx) {
-        //System.out.println("enterExprlist");
+//        scopeChecker.visitExprlist(ctx);
     }
 
     @Override
@@ -156,7 +141,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
 
     @Override
     public void enterExprrest(MiniJavaGrammarParser.ExprrestContext ctx) {
-        //System.out.println("enterExprrest");
+//        scopeChecker.visitExprrest(ctx);
     }
 
     @Override
