@@ -1,4 +1,5 @@
 package models;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
 public class SymbolTable {
     // the hashtable to store all occurred classes
     public Hashtable<String, ClassDeclaration> classData  = new Hashtable<String, ClassDeclaration>();
+    public int errorNum = 0;
 
     /**
      * insert a class. If there is an existing class with the same name, then error comes
@@ -20,38 +22,53 @@ public class SymbolTable {
     public void insertClass(String className, ClassDeclaration classDeclaration){
         if(classData.containsKey(className)){
             System.out.println("Multiple declarations of class " + className);
-            System.exit(0);
+            errorNum ++;
         }
         classData.put(className, classDeclaration);
     }
 
     /**
-     * to print all classes' information
+     * Given a class type, get all its super class types
+     * @param type  - the type
+     * @return      - an ArrayList containing all super class types
      */
-    public void listClassesDetailed(){
-        System.out.println("Symbol Table contains classes: ");
-        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
-        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
-            System.out.println(entry.getKey() + " extended from " + entry.getValue().extendsFrom);
-            entry.getValue().listVars();
-            entry.getValue().listMethods();
+    public ArrayList<String> getSuperclassType(String type){
+        ArrayList<String> types = new ArrayList<>();
+        // now the type is the class name
+        String superName = "";
+        ClassDeclaration curClass = this.classData.get(type);
+        if(curClass == null){
+            System.out.println(type + " not declared");
+            this.errorNum++;
+            return types;
         }
+        while(true) {
+            superName = curClass.extendsFrom;
+
+            if(superName.length() > 0) {
+                types.add(superName);
+                curClass = this.classData.get(superName);
+            }
+            else{
+                break;
+            }
+        }
+        return types;
     }
 
     /**
      * print symbol table after successful compilation
      */
     public void printSymbolTable(){
-        Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
-
-        for(Map.Entry<String, ClassDeclaration> entry: entrySet){
-            final Object[][] table = new String[4][];
-
-            System.out.println("-----------------------------------");
-            System.out.println("-----------------------------------");
-            entry.getValue().listMethods();
-
-
+        if(errorNum == 0){
+            Set<Map.Entry<String, ClassDeclaration>> entrySet = classData.entrySet();
+            for(Map.Entry<String, ClassDeclaration> entry: entrySet){
+                entry.getValue().printClass();
+                System.out.println("\n");
+            }
+        }
+        else{
+            System.out.println("There are total " + errorNum + " errors");
         }
 
     }

@@ -12,10 +12,20 @@ public class MiniJavaMain {
 
         if (args.length > 0 )
             inputFile = args[0];
+        else if(args.length == 0){
+            System.out.println("Usage: missed argument for filename");
+            System.exit(0);
+        }
 
         InputStream is = System.in;
+        try{
+            if (inputFile != null ) is = new FileInputStream(inputFile);
+        }
+        catch (Exception e){
+            System.out.println("File not found: " + inputFile);
+            System.exit(0);
+        }
 
-        if (inputFile != null ) is = new FileInputStream(inputFile);
 
         ANTLRInputStream input = new ANTLRInputStream(is);
 
@@ -36,6 +46,8 @@ public class MiniJavaMain {
         TypeChecker typeChecker = new TypeChecker(scopeListener.scopeChecker.symbolTable);
 
         tree.accept(typeChecker);
+
+        typeChecker.symbolTable.printSymbolTable();
 
     }
 

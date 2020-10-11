@@ -81,6 +81,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             String className = ctx.type().ID().getText();
             if(!symbolTable.classData.containsKey(className)){
                 System.out.println("Type Error: " + className + " not declared");
+                symbolTable.errorNum++;
             }
         }
         return super.visitVardecl(ctx);
@@ -96,6 +97,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             String className = ctx.type().ID().getText();
             if(!symbolTable.classData.containsKey(className)){
                 System.out.println("Type Error: " + className + " not declared");
+                symbolTable.errorNum++;
             }
         }
 
@@ -104,6 +106,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         String returnType = getExprType(ctx.expr());
         if(type.compareTo(returnType) != 0){
             System.out.println("Type Error: " + type + " and " + returnType + " not matched in " + ctx.getText());
+            symbolTable.errorNum++;
         }
 
         return super.visitMethoddecl(ctx);
@@ -167,12 +170,16 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             case 3: {
                 String className = getExprType(ctx.expr(0));
                 String methodName = ctx.ID().getText();
+                String type = "null";
+
                 if(!symbolTable.classData.containsKey(className) || !symbolTable.classData.get(className).methodData.containsKey(methodName)){
                     System.out.println("Method " + methodName + " in Class " + className + " not declared");
-                    System.exit(0);
+                    symbolTable.errorNum++;
                 }
-                checkParameters(symbolTable.classData.get(className).methodData.get(methodName), ctx);
-                String type = symbolTable.classData.get(className).methodData.get(methodName).type;
+                else{
+                    checkParameters(symbolTable.classData.get(className).methodData.get(methodName), ctx);
+                    type = symbolTable.classData.get(className).methodData.get(methodName).type;
+                }
                 return type;
             }
 
@@ -320,7 +327,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 break;
             }
             if(ctx instanceof MiniJavaGrammarParser.ProgramContext){
-                return "string";
+                return "null";
             }
             ctx = ctx.getParent();
         }
@@ -345,14 +352,22 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         else if(IDName.compareTo("this") == 0){
             return className;
         }
-        else if(symbolTable.classData.get(curClass.extendsFrom).hasVar(IDName)){
-            return symbolTable.classData.get(curClass.extendsFrom).varData.get(IDName).type;
+
+        ArrayList<String> superClasses = symbolTable.getSuperclassType(className);
+        if(superClasses.size() > 0){
+            for(String superClass: superClasses){
+                if(symbolTable.classData.get(superClass).hasVar(IDName)){
+                    return symbolTable.classData.get(superClass).varData.get(IDName).type;
+                }
+                else if(symbolTable.classData.get(superClass).hasMethod(IDName)){
+                    return symbolTable.classData.get(superClass).methodData.get(IDName).type;
+                }
+            }
         }
-        else if(symbolTable.classData.get(curClass.extendsFrom).hasMethod(IDName)){
-            return symbolTable.classData.get(curClass.extendsFrom).methodData.get(IDName).type;
-        }
-        System.out.println("not declared: " + IDName);
-        return "string";
+
+        System.out.println("ID not declared: " + IDName);
+        symbolTable.errorNum++;
+        return "null";
     }
 
     public void checkParameters(MethodDeclaration method, MiniJavaGrammarParser.ExprContext ctx){
@@ -377,6 +392,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         // check size
         if(method.paramData.size() != size){
             System.out.println("Type Error: " + ctx.getText() + " " + method.methodName + " expected " + method.paramData.size() + " parameters, but only " + size + " given");
+            symbolTable.errorNum++;
             return;
         }
 
@@ -399,35 +415,11 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
 
     public void printTypeError(String type1, String type2, String text){
         System.out.println("Type Error: " + type1 + " and " + type2 + " not matched in " + text);
-
+        symbolTable.errorNum++;
     }
 
     public boolean isPrimitiveType(String type){
         return type.compareTo(INT) == 0 || type.compareTo(INTARRAY) == 0 || type.compareTo(FLOAT) == 0 || type.compareTo(BOOLEAN) == 0;
-    }
-
-    /**
-     * Given a class type, get all its super class types
-     * @param type  - the type
-     * @return      - an ArrayList containing all super class types
-     */
-    public ArrayList<String> getSuperclassType(String type){
-        ArrayList<String> types = new ArrayList<>();
-        // now the type is the class name
-        String superName = "";
-        ClassDeclaration curClass = symbolTable.classData.get(type);
-        while(true) {
-            superName = curClass.extendsFrom;
-
-            if(superName.length() > 0) {
-                types.add(superName);
-                curClass = symbolTable.classData.get(superName);
-            }
-            else{
-                break;
-            }
-        }
-        return types;
     }
 
     /**
@@ -457,7 +449,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 type1 = type1.substring(0, type1.length() - 2);
                 type2 = type2.substring(0, type2.length() - 2);
             }
-                ArrayList<String> types = getSuperclassType(type2);
+                ArrayList<String> types = symbolTable.getSuperclassType(type2);
                 // check if casting is valid
                 for(String type: types){
                     if(type.compareTo(type1) == 0){

@@ -30,7 +30,8 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
                 classNames.add(ctx.classdecl(i).ID(0).getText());
                 // if the current class extends any class, record the super class name
                 if(ctx.classdecl(i).ID().size() > 1){
-                    superclassNames.add(ctx.classdecl(i).ID(1).getText());
+                    String superClass = ctx.classdecl(i).ID(1).getText();
+                    superclassNames.add(superClass);
                 }
             }
 
@@ -38,8 +39,11 @@ public class STVisitor extends MiniJavaGrammarBaseVisitor<Void> {
             for(String name: superclassNames){
                 if(!classNames.contains(name)){
                     System.out.println("Class " + name + " has not been declared");
+                    symbolTable.errorNum++;
                 }
             }
+
+
         }
 
         return super.visitProgram(ctx);
