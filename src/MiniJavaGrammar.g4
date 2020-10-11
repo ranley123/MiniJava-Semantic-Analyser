@@ -47,6 +47,7 @@ expr : expr op expr
      | LPAREN expr RPAREN
      | FLOATNUM
      | NEW ID LSQUARE expr RSQUARE
+     | expr DOT ID
     ;
 
 op : AND | LT | PLUS | MINUS | MUL ;

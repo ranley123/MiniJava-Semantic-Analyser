@@ -117,6 +117,7 @@ public class MiniJavaListener extends MiniJavaGrammarBaseListener {
     @Override
     public void exitExpr(MiniJavaGrammarParser.ExprContext ctx) {
         //  System.out.println("exitExpr");
+        System.out.println(ctx.getClass());
     }
 
     @Override

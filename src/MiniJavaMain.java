@@ -1,3 +1,4 @@
+import models.SymbolTable;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
@@ -48,6 +49,7 @@ public class MiniJavaMain {
         tree.accept(typeChecker);
 
         typeChecker.symbolTable.printSymbolTable();
+
 
     }
 

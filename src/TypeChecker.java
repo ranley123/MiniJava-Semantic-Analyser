@@ -235,6 +235,27 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                 return ctx.ID().getText() + "[]";
             }
 
+            // expr DOT ID
+            case 14:{
+                String className = getExprType(ctx.expr(0));
+                String varName = ctx.ID().getText();
+
+                if(symbolTable.classData.containsKey(className)){
+                    ClassDeclaration classDeclaration = symbolTable.classData.get(className);
+                    if(classDeclaration.varData.containsKey(varName)){
+                        return classDeclaration.varData.get(varName).type;
+                    }
+                    else{
+                        System.out.println("Variable " + varName + " not declared");
+                        symbolTable.errorNum++;
+                    }
+                }
+                else{
+                    System.out.println("Class " + className + " not declared");
+                    symbolTable.errorNum++;
+                }
+            }
+
         }
         return "null";
     }
@@ -271,7 +292,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         else if(ctx.LENGTH() != null){
             return 2;
         }
-        else if(ctx.DOT() != null && ctx.LENGTH() == null){
+        else if(ctx.DOT() != null && ctx.LENGTH() == null && ctx.LPAREN() != null){
             return 3;
         }
         else if(ctx.NEW() != null && ctx.INT() != null){
@@ -288,6 +309,9 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
         }
         else if(ctx.NEW() != null && ctx.ID() != null && ctx.LSQUARE()!= null){
             return 13;
+        }
+        else if(ctx.expr() != null && ctx.DOT() != null && ctx.ID() != null && ctx.getChildCount() == 3){
+            return 14;
         }
 
         return kind;
