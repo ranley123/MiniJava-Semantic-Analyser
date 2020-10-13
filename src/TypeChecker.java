@@ -246,6 +246,15 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
                         return classDeclaration.varData.get(varName).type;
                     }
                     else{
+                        // if the ID cannot be found in the current class, then go to superclasses
+                        ArrayList<String> superClasses = symbolTable.getSuperclassType(className);
+                        if(superClasses.size() > 0){
+                            for(String superClass: superClasses){
+                                if(symbolTable.classData.get(superClass).hasVar(varName)){
+                                    return symbolTable.classData.get(superClass).varData.get(varName).type;
+                                }
+                            }
+                        }
                         System.out.println("Variable " + varName + " not declared");
                         symbolTable.errorNum++;
                     }
@@ -377,6 +386,7 @@ public class TypeChecker extends MiniJavaGrammarBaseVisitor<Void> {
             return className;
         }
 
+        // if the ID cannot be found in the current class, then go to superclasses
         ArrayList<String> superClasses = symbolTable.getSuperclassType(className);
         if(superClasses.size() > 0){
             for(String superClass: superClasses){
